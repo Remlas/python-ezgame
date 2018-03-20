@@ -5,6 +5,7 @@ a = Orcs....
 """
 
 import random
+import os
 
 """
 on each game start ask user about size of the map
@@ -12,9 +13,10 @@ on each game start ask user about size of the map
 map_size_x = input("Podaj szerokosc mapy: ")
 map_size_y = input("Podaj wysokosc mapy: ")
 
+
 class Map(object):
 	"""
-	Map generator and object
+	Map generator on start and object
 	Show map by Map.Mapen
 	"""
 	mapen = []
@@ -36,14 +38,16 @@ class Creature(object):
 		self.pos_y = pos_y
 		self.alive = True
 		
-	def move(self, x,y):
-		
+	def move(self, x,y):	
 		self.pos_x += x
 		self.pos_y += y
 		Map.mapen[self.pos_x][self.pos_y] = self
 		Map.mapen[self.pos_x - x][self.pos_y - y] = None
 		
 	def random_move(self):
+		"""
+		Randomly select 1 of 4 world direction, then call move() method to move
+		"""
 		direction = random.randint(1,4)
 		if direction == 1:
 			self.move(0,1)
@@ -83,10 +87,10 @@ class Creature(object):
 class Orcs(Creature):
 	def __init__(self, pos_x, pos_y, hp=20):
 		Creature.__init__(self)
-		#super(Orcs, self).__init__() < z grubsza rownowazne > Creature.__init__
 		self.pos_x = pos_x
 		self.pos_y = pos_y
 		self.hp = hp
+		Map.mapen[self.pos_x][self.pos_y] = self
 
 	#property
 	def attack(self):
