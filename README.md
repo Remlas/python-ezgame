@@ -3,7 +3,7 @@
 ## Main Idea
 Just simple console RPG-like game
 
-###Rules of the game:
+### Rules of the game:
 
 * map generator
 * tour system

@@ -59,7 +59,7 @@ class Creature(object):
 			self.move(-1,0)
 		
 
-	#property
+	@property
 	def attack(self):
 		"""
 		Effective attack power of creature
@@ -92,13 +92,15 @@ class Orcs(Creature):
 		self.hp = hp
 		Map.mapen[self.pos_x][self.pos_y] = self
 
-	#property
+	@property
 	def attack(self):
 		return self._base_attack * 4
 		
 	def die(self):
-		print("For Sauron")
 		self.alive = False
+		Map.mapen[self.pos_x][self.pos_y] = None #When target die - it's removed from the map
+		print("For Sauron")
+
 
 class Player(Creature):
 	pass
