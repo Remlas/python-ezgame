@@ -39,13 +39,13 @@ class Creature(object):
 		self.alive = True
 		
 	def move(self, x,y):	
-		if (self.pos_x+x > map_size_x or self.pos_x+x <= 0) or (self.pos_y+y > map_size_y or self.pos_y+y <= 0):
-			print("Nie mozesz wyjsc poza mape! Tracisz kolejke")
-		else:
+		#if self.pos_x+x > map_size_x or self.pos_x+x <= 0:
+		#	print("Nie mozesz wyjsc poza mape! Tracisz kolejke")
+		#else:
 			self.pos_x += x
 			self.pos_y += y
-			Map.mapen[self.pos_x][self.pos_y] = self
-			Map.mapen[self.pos_x - x][self.pos_y - y] = None
+			Map.mapen[self.pos_y][self.pos_x] = self
+			Map.mapen[self.pos_y - y][self.pos_x - x] = None
 		
 	def random_move(self):
 		"""
@@ -127,5 +127,5 @@ class ForestOrcs(Orcs):
 	pass
 
 	
-a=Orcs(2,2)
-b=Orcs(2,1)
+a=Orcs(0,0)
+#b=Orcs(2,1)
