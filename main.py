@@ -44,6 +44,8 @@ class Creature(object):
 		"""
 		if (self.pos_x+x > map_size_x-1 or self.pos_x+x < 0) or (self.pos_y+y > map_size_y-1 or self.pos_y+y < 0):
 			print("Nie mozesz wyjsc poza mape! Tracisz kolejke")
+		elif Map.mapen[self.pos_y + y][self.pos_x + x] != None: #check if new position is empty
+			print("Ktos juz tam jest, tracisz kolejke")
 		else:
 			self.pos_x += x
 			self.pos_y += y
