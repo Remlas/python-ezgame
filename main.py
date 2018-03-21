@@ -38,10 +38,13 @@ class Creature(object):
 		self.pos_y = pos_y
 		self.alive = True
 		
-	def move(self, x,y):	
-		#if self.pos_x+x > map_size_x or self.pos_x+x <= 0:
-		#	print("Nie mozesz wyjsc poza mape! Tracisz kolejke")
-		#else:
+	def move(self, x,y):
+		"""
+		Because of the list as map, first index is for height (y - number of list - row number) and second is for width (x - number on list - column number) position on map.
+		"""
+		if (self.pos_x+x > map_size_x-1 or self.pos_x+x < 0) or (self.pos_y+y > map_size_y-1 or self.pos_y+y < 0):
+			print("Nie mozesz wyjsc poza mape! Tracisz kolejke")
+		else:
 			self.pos_x += x
 			self.pos_y += y
 			Map.mapen[self.pos_y][self.pos_x] = self
