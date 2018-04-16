@@ -10,8 +10,8 @@ import os
 """
 on each game start ask user about size of the map
 """
-map_size_x = input("Podaj szerokosc mapy: ")
-map_size_y = input("Podaj wysokosc mapy: ")
+map_size_x = int(input("Podaj szerokosc mapy: "))
+map_size_y = int(input("Podaj wysokosc mapy: "))
 
 
 class Map(object):
@@ -19,13 +19,20 @@ class Map(object):
 	Map generator on start and object
 	Show map by Map.Mapen
 	"""
+	
+	#color names to hex
+	BLACK = (0, 0, 0)
+	WHITE = (255, 255, 255)
+	RED = (255, 0, 0)
+	GREEN = (0, 255, 0)
+	BLUE = (0, 0, 255)
+	
 	mapen = []
 	for _ in range(map_size_y):
 		tmp = []
 		for i in range(map_size_x):
 			tmp.append(None)
 		mapen.append(tmp)
-
 class Creature(object):
 	"""
 	Base creaqture class.
