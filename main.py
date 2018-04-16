@@ -6,6 +6,11 @@ a = Orcs....
 
 import random
 import os
+import sys
+
+import pygame
+from pygame.locals import *
+
 
 """
 on each game start ask user about size of the map
@@ -17,7 +22,7 @@ map_size_y = int(input("Podaj wysokosc mapy: "))
 class Map(object):
 	"""
 	Map generator on start and object
-	Show map by Map.Mapen
+	Show map by Map.grid
 	"""
 	
 	#color names to hex
@@ -27,12 +32,31 @@ class Map(object):
 	GREEN = (0, 255, 0)
 	BLUE = (0, 0, 255)
 	
-	mapen = []
+	def rand_tile():
+		return random.randint(1,4)
+
+
+	#Grid for creatures
+	grid = []
 	for _ in range(map_size_y):
 		tmp = []
 		for i in range(map_size_x):
 			tmp.append(None)
-		mapen.append(tmp)
+		grid.append(tmp)
+		
+	#tiles for world
+	tiles = []
+	for _ in range(map_size_y):
+		tmp = []
+		for i in range(map_size_x):
+			tmp.append(rand_tile())
+		tiles.append(tmp)
+
+	GROUND = 0
+	FOREST = 1
+	WATER = 2
+	
+	
 class Creature(object):
 	"""
 	Base creaqture class.
@@ -51,13 +75,13 @@ class Creature(object):
 		"""
 		if (self.pos_x+x > map_size_x-1 or self.pos_x+x < 0) or (self.pos_y+y > map_size_y-1 or self.pos_y+y < 0):
 			print("Nie mozesz wyjsc poza mape! Tracisz kolejke")
-		elif Map.mapen[self.pos_y + y][self.pos_x + x] != None: #check if new position is empty
+		elif Map.grid[self.pos_y + y][self.pos_x + x] != None: #check if new position is empty
 			print("Ktos juz tam jest, tracisz kolejke")
 		else:
 			self.pos_x += x
 			self.pos_y += y
-			Map.mapen[self.pos_y][self.pos_x] = self
-			Map.mapen[self.pos_y - y][self.pos_x - x] = None
+			Map.grid[self.pos_y][self.pos_x] = self
+			Map.grid[self.pos_y - y][self.pos_x - x] = None
 		
 	def random_move(self):
 		"""
@@ -98,6 +122,7 @@ class Creature(object):
 	def die(self):
 		print("AAAAAAAaaarghhh!!!")
 		self.alive = False
+		Map.grid[self.pos_x][self.pos_y] = None #When target die - it's removed from the map
 
 class Orcs(Creature):
 	def __init__(self, pos_x, pos_y, hp=20):
@@ -105,7 +130,7 @@ class Orcs(Creature):
 		self.pos_x = pos_x
 		self.pos_y = pos_y
 		self.hp = hp
-		Map.mapen[self.pos_x][self.pos_y] = self
+		Map.grid[self.pos_x][self.pos_y] = self
 
 	@property
 	def attack(self):
@@ -113,7 +138,7 @@ class Orcs(Creature):
 		
 	def die(self):
 		self.alive = False
-		Map.mapen[self.pos_x][self.pos_y] = None #When target die - it's removed from the map
+		Map.grid[self.pos_x][self.pos_y] = None #When target die - it's removed from the map
 		print("For Sauron")
 
 
@@ -137,7 +162,3 @@ class WaterOrcs(Orcs):
 class ForestOrcs(Orcs):
 	forest_protection = True
 	pass
-
-	
-a=Orcs(0,0)
-#b=Orcs(2,1)
