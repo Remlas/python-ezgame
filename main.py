@@ -18,6 +18,14 @@ on each game start ask user about size of the map
 map_size_x = int(input("Podaj szerokosc mapy: "))
 map_size_y = int(input("Podaj wysokosc mapy: "))
 
+class WorldObjects(object):
+	#Name-ID
+	TileTypes = {
+		'GROUND' : 0, 
+		'WATER' : 1, 
+		'FOREST' : 2, 
+		'FIRE' : 3,
+		'VOID' : 4}
 
 class Map(object):
 	"""
@@ -25,16 +33,10 @@ class Map(object):
 	Show map by Map.grid
 	"""
 	
-	#color names to hex
-	BLACK = (0, 0, 0)
-	WHITE = (255, 255, 255)
-	RED = (255, 0, 0)
-	GREEN = (0, 255, 0)
-	BLUE = (0, 0, 255)
-	
+	#Random terrain - YEA
 	def rand_tile():
-		return random.randint(1,4)
-
+		rtile = random.choice(list(WorldObjects.TileTypes.values())) 
+		return rtile
 
 	#Grid for creatures
 	grid = []
@@ -52,10 +54,6 @@ class Map(object):
 			tmp.append(rand_tile())
 		tiles.append(tmp)
 
-	GROUND = 0
-	FOREST = 1
-	WATER = 2
-	
 	
 class Creature(object):
 	"""
@@ -162,3 +160,44 @@ class WaterOrcs(Orcs):
 class ForestOrcs(Orcs):
 	forest_protection = True
 	pass
+	
+	
+	
+class Graphics(object):
+	#color names to hex
+	BLACK = (0, 0, 0)
+	WHITE = (255, 255, 255)
+	RED = (255, 0, 0)
+	GREEN = (0, 255, 0)
+	BLUE = (0, 0, 255)
+	
+	#and patching those colors to tile type
+	
+	colors = {
+		WorldObjects.TileTypes['GROUND'] : BLACK,
+		WorldObjects.TileTypes['WATER'] : BLUE,
+		WorldObjects.TileTypes['FOREST'] : GREEN,
+		WorldObjects.TileTypes['FIRE'] : RED,
+		WorldObjects.TileTypes['VOID'] : WHITE
+		}
+	
+	#how big is one Tile
+	TileSize = 50
+	
+pygame.init()
+DISPLAYARENA = pygame.display.set_mode((map_size_x*Graphics.TileSize, map_size_y*Graphics.TileSize))
+
+while True:
+
+	for event in pygame.event.get():
+		if event.type == QUIT:
+			pygame.quit()
+			sys.exit()
+			
+	for row in range(map_size_y):
+		#loop through each column in the row
+		for column in range(map_size_x):
+			#draw the resource at that position in the tilemap, using the correct colour
+			pygame.draw.rect(DISPLAYARENA, Graphics.colors[Map.tiles[row][column]], (column*Graphics.TileSize,row*Graphics.TileSize,Graphics.TileSize,Graphics.TileSize))
+	
+	pygame.display.update()
