@@ -12,6 +12,9 @@ import pygame
 from pygame.locals import *
 
 
+pygame.init()
+
+
 """
 on each game start ask user about size of the map
 """
@@ -181,10 +184,10 @@ class Graphics(object):
 		WorldObjects.TileTypes['VOID'] : WHITE
 		}
 	
-	#how big is one Tile
-	TileSize = 50
+	#how big is one Tile. Maximum monitor height or width minus 20% for windows bars
+	max_per_h = pygame.display.Info().current_h * 0.8
+	TileSize = int(round(max_per_h / map_size_y))
 	
-pygame.init()
 DISPLAYARENA = pygame.display.set_mode((map_size_x*Graphics.TileSize, map_size_y*Graphics.TileSize))
 
 while True:
