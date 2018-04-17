@@ -20,14 +20,18 @@ pygame.display.set_icon(pygame.image.load('resources/character.png'))
 
 
 print("Wczytac mape?")
-generate_world = input("T/N")
+
+map_size_x = 10
+map_size_y = 10
+
+generate_world = input("T/N ")
 
 if generate_world == "T" or generate_world == "t":
 	generate_world = 0
-	world_file = "maps/" + input("Podaj nazwe swiata .csv ")
+	world_file = "maps/" + input("Podaj nazwe swiata (Wcisnij ENTER, aby wczytac ostatni swiat) ") + ".csv"
+	if world_file == "maps/.csv":
+		world_file = "maps/last_world.csv"
 	print("Wczytuje" + world_file)
-	map_size_x = 10
-	map_size_y = 10
 else:
 	generate_world = 1
 	"""
@@ -73,13 +77,6 @@ class Map(object):
 			rtile = WorldObjects.TileTypes['VOID']
 		return rtile
 
-	#Grid for creatures
-	grid = []
-	for _ in range(map_size_y):
-		tmp = []
-		for i in range(map_size_x):
-			tmp.append(None)
-		grid.append(tmp)
 		
 	#tiles for world
 	tiles = []
@@ -87,18 +84,32 @@ class Map(object):
 	if generate_world == 0:
 		with open(world_file) as f:
 			reader = csv.reader(f,quotechar=' ')
-			tiles = [r for r in reader]
+			for r in reader:
+				tiles.append([int(cell) for cell in r])
+		global map_size_x
+		global map_size_y
+		map_size_x = len(tiles[0])
+		map_size_y = len(tiles)
 	else:
 		for _ in range(map_size_y):
 			tmp = []
 			for i in range(map_size_x):
 				tmp.append(rand_tile())
 			tiles.append(tmp)
-
-	with open(world_file, "w") as output:
-		writer = csv.writer(output, lineterminator='\n')
-		writer.writerows(tiles)
 	
+	
+	#Grid for creatures
+	grid = []
+	for _ in range(map_size_y):
+		tmp = []
+		for i in range(map_size_x):
+			tmp.append(None)
+		grid.append(tmp)
+	
+	def save_world():
+		with open(world_file, "w") as output:
+			writer = csv.writer(output, lineterminator='\n')
+			writer.writerows(Map.tiles)
 	
 class Creature(object):
 	"""
@@ -184,16 +195,6 @@ class Orcs(Creature):
 		Map.grid[self.pos_x][self.pos_y] = None #When target die - it's removed from the map
 		print("For Sauron")
 
-
-class Character(Orcs):
-	def __init__(self, pos_x, pos_y, hp=100):
-		self.texture = pygame.image.load('resources/character.png').convert_alpha()
-		Creature.__init__(self)
-		self.pos_x = pos_x
-		self.pos_y = pos_y
-		self.hp = hp
-		Map.grid[self.pos_x][self.pos_y] = self
-
 class WaterOrcs(Orcs):
 	water_protection = True
 	def __init__(self, pos_x, pos_y, hp=20):
@@ -222,21 +223,33 @@ class Graphics(object):
 	GREEN = (0, 255, 0)
 	BLUE = (0, 0, 255)
 	
+	#how big is one Tile. Maximum monitor height or width minus 20% for windows bars
+	max_per_h = pygame.display.Info().current_h * 0.8
+	TileSize = int(round(max_per_h / map_size_y))
+	#TileSize = 48
+	
 	#and patching those colors to tile type
 	
 	textures = {
-		WorldObjects.TileTypes['GROUND'] :  pygame.image.load('resources/ground.png'),
-		WorldObjects.TileTypes['WATER'] : pygame.image.load('resources/water.png'),
-		WorldObjects.TileTypes['FOREST'] : pygame.image.load('resources/forest.png'),
-		WorldObjects.TileTypes['FIRE'] : pygame.image.load('resources/fire.png'),
-		WorldObjects.TileTypes['VOID'] : pygame.image.load('resources/void.png')
+		#Tile name : scaling to size of Tile, file, Size
+		WorldObjects.TileTypes['GROUND'] : pygame.transform.scale(pygame.image.load('resources/ground.png'),(TileSize, TileSize)),
+		WorldObjects.TileTypes['WATER'] : pygame.transform.scale(pygame.image.load('resources/water.png'),(TileSize, TileSize)),
+		WorldObjects.TileTypes['FOREST'] : pygame.transform.scale(pygame.image.load('resources/forest.png'),(TileSize, TileSize)),
+		WorldObjects.TileTypes['FIRE'] : pygame.transform.scale(pygame.image.load('resources/fire.png'),(TileSize, TileSize)),
+		WorldObjects.TileTypes['VOID'] : pygame.transform.scale(pygame.image.load('resources/void.png'),(TileSize, TileSize))
 		}
-	
-	#how big is one Tile. Maximum monitor height or width minus 20% for windows bars
-	max_per_h = pygame.display.Info().current_h * 0.8
-	#TileSize = int(round(max_per_h / map_size_y))
-	TileSize = 48
-	
+		
+class Character(Orcs):
+	def __init__(self, pos_x, pos_y, hp=100):
+		#self.texture = pygame.image.load('resources/character.png').convert_alpha()
+		self.texture = pygame.transform.scale(pygame.image.load('resources/character.png').convert_alpha(),(Graphics.TileSize, Graphics.TileSize))
+		Creature.__init__(self)
+		self.pos_x = pos_x
+		self.pos_y = pos_y
+		self.hp = hp
+		Map.grid[self.pos_x][self.pos_y] = self
+
+
 DISPLAYARENA = pygame.display.set_mode((map_size_x*Graphics.TileSize, map_size_y*Graphics.TileSize))
 
 Player = Character(0,0)
@@ -249,7 +262,8 @@ while Player.alive == True:
 			sys.exit()
 		
 		if event.type == KEYDOWN:
-			if (event.key == K_ESCAPE):
+			if (event.key == K_ESCAPE) or (event.key == K_q):
+				Map.save_world()
 				pygame.quit()
 				sys.exit()
 			elif (event.key == K_RIGHT):
@@ -260,8 +274,16 @@ while Player.alive == True:
 				Player.move(0,1)
 			elif (event.key == K_UP):
 				Player.move(0,-1)
-			elif (event.key == K_v):
+			elif (event.key == K_0):
 				Map.tiles[Player.pos_y][Player.pos_x] = WorldObjects.TileTypes['VOID']
+			elif (event.key == K_1):
+				Map.tiles[Player.pos_y][Player.pos_x] = WorldObjects.TileTypes['GROUND']
+			elif (event.key == K_2):
+				Map.tiles[Player.pos_y][Player.pos_x] = WorldObjects.TileTypes['WATER']
+			elif (event.key == K_3):
+				Map.tiles[Player.pos_y][Player.pos_x] = WorldObjects.TileTypes['FOREST']
+			elif (event.key == K_4):
+				Map.tiles[Player.pos_y][Player.pos_x] = WorldObjects.TileTypes['FIRE']
 			else:
 				pass
 			
